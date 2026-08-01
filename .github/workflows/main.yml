@@ -22,10 +22,37 @@ jobs:
     - name: Install dependencies
       run: |
         sudo apt update
-        sudo apt install -y python3-pip python3-setuptools python3-wheel openjdk-17-jdk git unzip wget libssl-dev libffi-dev autoconf automake libtool pkg-config
+        sudo apt install -y python3-pip python3-setuptools python3-wheel openjdk-17-jdk \
+          git unzip wget libssl-dev libffi-dev autoconf automake libtool pkg-config
         pip3 install --upgrade buildozer cython
-        # 提前接受 Android SDK licenses（关键！）
-        yes | $ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager --licenses || true
+
+        # ===== 修复 SDK 环境（关键）=====
+        # 1. 删除 Buildozer 下载的旧 tools/ 目录
+        rm -rf /home/runner/.buildozer/android/platform/android-sdk/tools
+
+        # 2. 下载新版 commandlinetools（含能工作的 sdkmanager）
+        mkdir -p /home/runner/.buildozer/android/platform/android-sdk/cmdline-tools
+        cd /home/runner/.buildozer/android/platform/android-sdk/cmdline-tools
+        wget -q https://dl.google.com/android/repository/commandlinetools-linux-11076708_latest.zip
+        unzip -q commandlinetools-linux-11076708_latest.zip
+        mv cmdline-tools latest
+        cd /home/runner/work/EWTAPK/EWTAPK
+
+        # 3. 设置 ANDROID_HOME 指向 Buildozer 下载的 SDK
+        export ANDROID_HOME=/home/runner/.buildozer/android/platform/android-sdk
+        export PATH=$ANDROID_HOME/cmdline-tools/latest/bin:$ANDROID_HOME/platform-tools:$PATH
+
+        # 4. 非交互式接受所有 license（CI 必须用 yes |）
+        yes | $ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager --licenses > /dev/null 2>&1 || true
+
+        # 5. 预装 platform-tools + build-tools;34.0.0（避开 37 的坑）
+        $ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager \
+          "platform-tools" \
+          "build-tools;34.0.0" \
+          "platforms;android-33"
+
+        # 6. 验证 aidl 存在
+        ls -lh $ANDROID_HOME/build-tools/34.0.0/aidl
         
     - name: Fix NDK and install p4a
       run: |
