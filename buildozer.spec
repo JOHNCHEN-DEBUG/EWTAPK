@@ -24,11 +24,12 @@ android.api = 33
 android.minapi = 21
 android.ndk = 25b
 android.ndk_path = /home/runner/.buildozer/android/platform/android-ndk-r25b
-android.sdk_path = /usr/local/lib/android/sdk
+android.sdk_path = /home/runner/.buildozer/android/platform/android-sdk
 android.accept_sdk_license = True
 android.archs = arm64-v8a,armeabi-v7a
 android.gradle_dependencies =
 android.enable_androidx = True
+android.build_tools_version = 34.0.0
 
 [p4a]
 p4a.branch = develop
