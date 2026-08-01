@@ -24,6 +24,8 @@ jobs:
         sudo apt update
         sudo apt install -y python3-pip python3-setuptools python3-wheel openjdk-17-jdk git unzip wget libssl-dev libffi-dev autoconf automake libtool pkg-config
         pip3 install --upgrade buildozer cython
+        # 提前接受 Android SDK licenses（关键！）
+        yes | $ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager --licenses || true
         
     - name: Fix NDK and install p4a
       run: |
