@@ -25,25 +25,14 @@ jobs:
         sudo apt install -y python3-pip python3-setuptools python3-wheel openjdk-17-jdk git unzip wget libssl-dev libffi-dev autoconf automake libtool pkg-config
         pip3 install --upgrade buildozer cython
         
-    - name: Fix NDK and p4a environment
+    - name: Fix NDK and install p4a
       run: |
-        # 清理可能存在的旧 NDK 软链接
         rm -rf ~/.buildozer/android/platform/android-ndk-*
-        
-        # 确保目标目录存在
         mkdir -p ~/.buildozer/android/platform
-        
-        # 强制指向 GitHub Actions 自带的 NDK r25b（关键）
         ln -sfn /usr/local/lib/android/sdk/ndk/25.2.9519653 ~/.buildozer/android/platform/android-ndk-r25b
-        
-        # 升级 pip
-        python -m pip install --upgrade pip
-        
-        # 卸载系统可能残留的旧 p4a
+
         pip uninstall -y python-for-android || true
-        
-        # 安装开发版 p4a（修复 NDK r25b + Kivy 2.3 兼容问题）
-        pip install git+https://github.com/kivy/python-for-android.git@develop
+        pip install "python-for-android==2026.5.9"
 
     - name: Build APK with Buildozer
       run: |
