@@ -27,12 +27,23 @@ jobs:
         
     - name: Fix NDK and p4a environment
       run: |
-        sudo apt remove -y android-ndk*
+        # 清理可能存在的旧 NDK 软链接
         rm -rf ~/.buildozer/android/platform/android-ndk-*
+        
+        # 确保目标目录存在
         mkdir -p ~/.buildozer/android/platform
+        
+        # 强制指向 GitHub Actions 自带的 NDK r25b（关键）
         ln -sfn /usr/local/lib/android/sdk/ndk/25.2.9519653 ~/.buildozer/android/platform/android-ndk-r25b
-        pip3 uninstall -y python-for-android
-        pip3 install git+https://github.com/kivy/python-for-android.git@develop
+        
+        # 升级 pip
+        python -m pip install --upgrade pip
+        
+        # 卸载系统可能残留的旧 p4a
+        pip uninstall -y python-for-android || true
+        
+        # 安装开发版 p4a（修复 NDK r25b + Kivy 2.3 兼容问题）
+        pip install git+https://github.com/kivy/python-for-android.git@develop
 
     - name: Build APK with Buildozer
       run: |
