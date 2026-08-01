@@ -24,6 +24,15 @@ jobs:
         sudo apt update
         sudo apt install -y python3-pip python3-setuptools python3-wheel openjdk-17-jdk git unzip wget libssl-dev libffi-dev autoconf automake libtool pkg-config
         pip3 install --upgrade buildozer cython
+        
+    - name: Fix NDK and p4a environment
+      run: |
+        sudo apt remove -y android-ndk*
+        rm -rf ~/.buildozer/android/platform/android-ndk-*
+        mkdir -p ~/.buildozer/android/platform
+        ln -sfn /usr/local/lib/android/sdk/ndk/25.2.9519653 ~/.buildozer/android/platform/android-ndk-r25b
+        pip3 uninstall -y python-for-android
+        pip3 install git+https://github.com/kivy/python-for-android.git@develop
 
     - name: Build APK with Buildozer
       run: |
